@@ -3,14 +3,14 @@ import express, {Express, Handler, NextFunction, Request, Response} from 'expres
 import {resolve} from 'path';
 import * as bodyParser from "body-parser";
 import {ResourceBase, RouteDef} from "./resource";
-import PositionResource from "../controllers/sample.resource";
+import QuizResource from "../controllers/quiz.resource";
 import * as Debug from "debug";
 
 export default class Server {
 
     private routeNamespace = '/api';
     private resources = [
-        PositionResource
+        QuizResource
     ];
 
     private log = Debug("Server");
