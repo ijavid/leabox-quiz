@@ -1,4 +1,5 @@
 import * as dotenv from 'dotenv';
+import {resolve} from "path";
 
 dotenv.config();
 
@@ -7,7 +8,7 @@ export default interface Config {
     mongoUrl: string,
     env: string;
     logLevel: string;
-    staticRoutes: string;
+    staticRoute: string;
 };
 
 export const configuration: Config = {
@@ -15,5 +16,5 @@ export const configuration: Config = {
     mongoUrl: process.env.MONGODB || '',
     env: process.env.ENV || process.env.NODE_ENV || 'dev',
     logLevel: process.env.LOG_LEVEL || 'debug',
-    staticRoutes: process.env.STATIC || './public'
+    staticRoute: resolve(__dirname, process.env.STATIC || './public')
 };

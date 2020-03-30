@@ -19,10 +19,11 @@
   "dependencies": {
     "advanced-controllers": "^2.3.0",
     "body-parser": "latest",
-    "debug": "^4.1.1",
     "dotenv": "latest",
     "express": "latest",
+    "injection-js": "^2.3.0",
     "mongoose": "latest",
-    "reflect-metadata": "^0.1.13"
+    "reflect-metadata": "^0.1.13",
+    "tslib": "^1.11.1"
   }
 }

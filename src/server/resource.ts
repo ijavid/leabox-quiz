@@ -93,6 +93,8 @@ function resource(namespace = ''): ClassDecorator {
 
 
 /*
+// move to readme.md
+
 //-----
 @Resource('resource')
 export class A extends ResourceBase {

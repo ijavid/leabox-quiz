@@ -1,10 +1,12 @@
+import 'reflect-metadata';
 import Config from "../config";
 import express, {Express, Handler, NextFunction, Request, Response} from 'express';
 import {resolve} from 'path';
 import * as bodyParser from "body-parser";
 import {ResourceBase, RouteDef} from "./resource";
-import QuizResource from "../controllers/quiz.resource";
-import * as Debug from "debug";
+import {QuizResource} from "../controllers/quiz.resource";
+import {ReflectiveInjector} from "injection-js";
+import {SampleService} from "../services/sample.service";
 
 export default class Server {
 
@@ -12,9 +14,12 @@ export default class Server {
     private resources = [
         QuizResource
     ];
+    private services = [
+        SampleService
+    ];
 
-    private log = Debug("Server");
     private app: Express;
+    private injector = ReflectiveInjector.resolveAndCreate(this.services);
 
     constructor(private config: Config) {
         this.app = express();
@@ -29,10 +34,10 @@ export default class Server {
     }
 
     private registerRoutes() {
-        this.resources.forEach((clazz: any) => {
-            console.log(`Registering methods for '${clazz._name}'`);
-            const instance = new clazz() as ResourceBase;
-            instance.getRoutes().forEach((route) => {
+        this.resources.forEach((type: any) => {
+            console.log(`Registering methods for '${type._name}'`);
+            const instance = new type(this.injector);
+            (instance as ResourceBase).getRoutes().forEach((route) => {
                 this.registerRoute(route);
             });
         });
@@ -71,7 +76,7 @@ export default class Server {
     };
 
     private registerStaticRoute() {
-        const path = resolve(__dirname, '../../public');
+        const path = resolve(__dirname, this.config.staticRoute);
         console.log(`Registering static server on '${path}'`);
         this.app.use(express.static(path));
     }

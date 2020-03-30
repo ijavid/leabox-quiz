@@ -3,6 +3,10 @@ import {Request, Response} from "express";
 
 export abstract class RestController<T> extends ResourceBase {
 
+    constructor(protected injector) {
+        super();
+    }
+
     async afterRead(items: T[]): Promise<T[]> {
         return items;
     }
