@@ -1,0 +1,28 @@
+{
+  "name": "leabox-quiz",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc -p .",
+    "start": "node dist/main.js",
+    "develop": "ts-node-dev --no-notify --clear --ignore-watch node_modules --respawn src/main.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^13.9.5",
+    "ts-node-dev": "^1.0.0-pre.44",
+    "typescript": "^3.8.3"
+  },
+  "dependencies": {
+    "advanced-controllers": "^2.3.0",
+    "body-parser": "latest",
+    "debug": "^4.1.1",
+    "dotenv": "latest",
+    "express": "latest",
+    "mongoose": "latest",
+    "reflect-metadata": "^0.1.13"
+  }
+}
