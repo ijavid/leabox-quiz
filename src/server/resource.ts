@@ -1,96 +1,75 @@
 import 'reflect-metadata';
-import {NextFunction, Request, Response} from "express";
+import {ReflectiveInjector} from "injection-js";
+import {ResourceBaseType, RouteDef} from "./resource.type";
 
 
 // Decorators
 export const Resource = resource;
 export const Route = route;
 
+// singleton
+export const singleton: { injector: ReflectiveInjector, resources: ResourceBase[] } = {
+    injector: undefined,
+    resources: []
+};
+
 const RESOURCE_ROUTES_META_KEY = 'RESOURCE_ROUTES_META_KEY';
 
-export type HandlerFn = (req?: Request, res?: Response, done?: NextFunction) => Promise<any>;
+export abstract class ResourceBase implements ResourceBaseType {
 
-export interface RouteDef {
-    method: string,
-    path: string,
-    handler: HandlerFn
-}
-
-export abstract class ResourceBase {
-
-    private namespace: string = '';
-
-    constructor() { }
+    _namespace: string;
 
     public getRoutes(): Array<RouteDef> {
         const metadata = Reflect.getMetadata(RESOURCE_ROUTES_META_KEY, this.constructor) || {};
         // console.log(metadata);
         return Object.keys(metadata).map((key) => {
-            let { path, method, handler } = metadata[key];
-            if (this.namespace) {
-                path = this.namespace + path;
+            let {path, method, handler} = metadata[key];
+            if (this._namespace) {
+                path = this._namespace + path;
             }
             handler = handler.bind(this);
-            return { path, method, handler }
+            return {path, method, handler}
         })
     }
 }
 
-export function getResources() {
-    return resources;
-}
-
+// Method decorator
 function route(path: string, method = 'get') {
     method = method.toLowerCase();
-    // console.log("route factory", method, path);
     return function (target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
-
-        const originalMethod = descriptor.value;
-
-        // do something with 'target' and 'value'...
-        // console.log(target); // <- Class definition
-        var classConstructor = target.constructor;
-        // console.log('property target: ' , classConstructor);
-
+        const classConstructor = target.constructor;
         const metadata = Reflect.getMetadata(RESOURCE_ROUTES_META_KEY, classConstructor) || {};
-        metadata[propertyKey] = { path, method, handler: descriptor.value };
+        metadata[propertyKey] = {path, method, handler: descriptor.value};
         Reflect.defineMetadata(RESOURCE_ROUTES_META_KEY, metadata, classConstructor);
 
-
-        // console.log(propertyKey);
-        // console.log(descriptor);
-
-        //descriptor;
         descriptor.value = descriptor.value.bind(classConstructor);
-
         return descriptor;
     }
 }
 
-const resources: Array<any> = [];
-
+// Class decorator
 function resource(namespace = ''): ClassDecorator {
-    return <ClassDecorator> function (target: any) {
+    return <ClassDecorator>function (target: any) {
         // save a reference to the original constructor
         const original = target;
 
-        const f = function (...args: any[]) {
-            // console.log("New: " + original.name);
-            const instance = new original(...args);
-            instance.namespace = namespace;
+        // the new constructor behaviour
+        const newConstructor: any = function (...args: any[]) {
+            const instance = singleton.injector ? singleton.injector.resolveAndInstantiate(original) : new original(...args);
+            instance._namespace = namespace;
             return instance;
         };
 
-        // copy prototype so intanceof operator still works
-        f.prototype = original.prototype;
-        (<any> f)._name = original.name;
+        // copy prototype, so intanceof operator still works
+        newConstructor.prototype = original.prototype;
+        // newConstructor._name = original.name;  >>> type.prototype.constructor.name
 
-        resources.push(original);
+        // register to singleton
+        singleton.resources.push(original);
 
-        return f;
+        return newConstructor;
     }
 }
-
 
 /*
 // move to readme.md

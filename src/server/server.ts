@@ -3,15 +3,18 @@ import Config from "../config";
 import express, {Express, Handler, NextFunction, Request, Response} from 'express';
 import {resolve} from 'path';
 import * as bodyParser from "body-parser";
-import {ResourceBase, RouteDef} from "./resource";
+import {ResourceBase, singleton} from "./resource";
 import {QuizResource} from "../controllers/quiz.resource";
 import {ReflectiveInjector} from "injection-js";
 import {SampleService} from "../services/sample.service";
+import {RouteDef} from "./resource.type";
+import {PublicApiResource} from "../controllers/public-api.resource";
 
 export default class Server {
 
     private routeNamespace = '/api';
     private resources = [
+        PublicApiResource,
         QuizResource
     ];
     private services = [
@@ -19,9 +22,11 @@ export default class Server {
     ];
 
     private app: Express;
-    private injector = ReflectiveInjector.resolveAndCreate(this.services);
+    private injector: ReflectiveInjector;
 
     constructor(private config: Config) {
+        this.injector = ReflectiveInjector.resolveAndCreate(this.services);
+        singleton.injector = this.injector;
         this.app = express();
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({extended: true}));
@@ -35,8 +40,9 @@ export default class Server {
 
     private registerRoutes() {
         this.resources.forEach((type: any) => {
-            console.log(`Registering methods for '${type._name}'`);
-            const instance = new type(this.injector);
+            console.log(`Registering methods for '${type.prototype.constructor.name}'`);
+            const instance = this.injector.resolveAndInstantiate(type);
+            // console.log(instance);
             (instance as ResourceBase).getRoutes().forEach((route) => {
                 this.registerRoute(route);
             });
