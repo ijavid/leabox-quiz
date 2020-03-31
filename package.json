@@ -20,6 +20,7 @@
     "@types/mongoose": "^5.7.8",
     "advanced-controllers": "^2.3.0",
     "body-parser": "latest",
+    "cors": "^2.8.5",
     "dotenv": "latest",
     "express": "latest",
     "injection-js": "^2.3.0",

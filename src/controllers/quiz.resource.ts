@@ -9,5 +9,6 @@ export class QuizResource extends RestController<Quiz> {
 
     constructor(public service: SampleService) {
         super(QuizModel);
+        // console.log(service);
     }
 }

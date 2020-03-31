@@ -40,4 +40,4 @@ export const QuizSchema = new Schema({
 });
 
 
-export const QuizModel = Mongoose.model('QuizSchema', QuizSchema);
+export const QuizModel = Mongoose.model<Quiz>('QuizSchema', QuizSchema);

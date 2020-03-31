@@ -3,6 +3,7 @@ import Config from "../config";
 import express, {Express, Handler, NextFunction, Request, Response} from 'express';
 import {resolve} from 'path';
 import * as bodyParser from "body-parser";
+import cors from "cors";
 import {ResourceBase, singleton} from "./resource";
 import {QuizResource} from "../controllers/quiz.resource";
 import {ReflectiveInjector} from "injection-js";
@@ -28,6 +29,7 @@ export default class Server {
         this.injector = ReflectiveInjector.resolveAndCreate(this.services);
         singleton.injector = this.injector;
         this.app = express();
+        this.app.use(cors());
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({extended: true}));
         this.registerStaticRoute();

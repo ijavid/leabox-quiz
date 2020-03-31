@@ -1,16 +1,10 @@
 import 'reflect-metadata';
 import {Resource, ResourceBase, Route} from "../server/resource";
-import {SampleService} from "../services/sample.service";
 import {Request} from "express";
+import {QuizModel} from "../models/quiz.model";
 
 @Resource('/public')
 export class PublicApiResource extends ResourceBase {
-
-    constructor(public service: SampleService) {
-        super();
-        // console.log(this.service);
-    }
-
 
     @Route('/enroll', 'POST')
     async enrollForQuiz() {
@@ -19,14 +13,11 @@ export class PublicApiResource extends ResourceBase {
         }
     }
 
-    @Route('/questions', 'GET')
+    @Route('/questions/:id', 'GET')
     async getQuizQuestions(request: Request) {
         const id = request.params.id;
-        return {
-            id,
-            name: 'Sample',
-            questions: []
-        }
+        const doc = await QuizModel.findById(id);
+        return doc.questions;
     }
 
     @Route('/submit', 'POST')
